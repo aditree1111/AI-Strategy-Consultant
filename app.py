@@ -1,3 +1,4 @@
+from utils.rag import create_vector_store
 import streamlit as st
 from pathlib import Path
 from utils.pdf_reader import extract_text_from_pdf
@@ -92,9 +93,12 @@ if uploaded_file is not None:
         text, total_pages = extract_text_from_pdf(file_path)
         text = clean_text(text)
         chunks = chunk_text(text)
+        with st.spinner("Creating AI Knowledge Base..."):
+            vector_db = create_vector_store(chunks)
 
+        st.success("Knowledge Base Created!")
         st.divider()
-
+        st.metric("Knowledge Base", "Ready")
         st.subheader("📚 PDF Statistics")
 
         col1, col2, col3, col4 = st.columns(4)
