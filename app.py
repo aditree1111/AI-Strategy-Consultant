@@ -1,12 +1,15 @@
-from utils.rag import create_vector_store
 import streamlit as st
 from pathlib import Path
+
 from utils.pdf_reader import extract_text_from_pdf
 from utils.text_processing import clean_text, chunk_text
+from utils.vector_store import build_vector_store, search_chunks
+from utils.gemini import ask_gemini
 
 # ==========================================
 # Page Configuration
 # ==========================================
+
 st.set_page_config(
     page_title="AI Strategy Consultant",
     page_icon="📊",
@@ -14,20 +17,23 @@ st.set_page_config(
 )
 
 # ==========================================
-# Create Upload Folder
+# Upload Folder
 # ==========================================
+
 UPLOAD_FOLDER = Path("uploads")
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
 # ==========================================
-# App Title
+# Title
 # ==========================================
+
 st.title("📊 AI Strategy Consultant")
 
 st.markdown("""
-Upload any public company's **Annual Report (PDF)** to begin AI-powered strategic analysis.
+Upload any public company's **Annual Report (PDF)** and ask AI strategic questions.
 
 ### Supported Companies
+
 - Apple
 - Microsoft
 - Amazon
@@ -35,7 +41,7 @@ Upload any public company's **Annual Report (PDF)** to begin AI-powered strategi
 - Reliance
 - Infosys
 - TCS
-- Any other public company
+- Any public company
 """)
 
 st.divider()
@@ -43,123 +49,260 @@ st.divider()
 # ==========================================
 # Sidebar
 # ==========================================
+
 st.sidebar.header("Navigation")
 st.sidebar.success("Step 1: Upload Annual Report")
 
 # ==========================================
 # Upload PDF
 # ==========================================
+
 uploaded_file = st.file_uploader(
-    "📄 Upload Annual Report (PDF)",
+    "📄 Upload Annual Report",
     type=["pdf"]
 )
 
 # ==========================================
-# Process Uploaded File
+# Main Logic
 # ==========================================
+
 if uploaded_file is not None:
 
-    # File Details
     file_name = uploaded_file.name
-    file_size_mb = uploaded_file.size / (1024 * 1024)
+    file_size = uploaded_file.size / (1024 * 1024)
 
-    st.success("✅ Annual Report Uploaded Successfully!")
-
-    st.subheader("📄 File Information")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.metric("File Name", file_name)
-
-    with col2:
-        st.metric("File Size", f"{file_size_mb:.2f} MB")
-
-    # ==========================================
-    # Save PDF
-    # ==========================================
     file_path = UPLOAD_FOLDER / file_name
 
-    with open(file_path, "wb") as file:
-        file.write(uploaded_file.getbuffer())
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
 
-    st.success("📁 Report saved successfully!")
-    st.info(f"Saved to: {file_path}")
+    st.success("✅ Annual Report Uploaded Successfully")
 
-    # ==========================================
-    # Extract Text from PDF
-    # ==========================================
     try:
+
+        # ----------------------------
+        # Read PDF
+        # ----------------------------
+
         text, total_pages = extract_text_from_pdf(file_path)
+
+        # ----------------------------
+        # Clean Text
+        # ----------------------------
+
         text = clean_text(text)
+
+        # ----------------------------
+        # Chunk Text
+        # ----------------------------
+
         chunks = chunk_text(text)
-        with st.spinner("Creating AI Knowledge Base..."):
-            vector_db = create_vector_store(chunks)
 
-        st.success("Knowledge Base Created!")
-        st.divider()
-        st.metric("Knowledge Base", "Ready")
-        st.subheader("📚 PDF Statistics")
+        # ----------------------------
+        # Build Vector Database
+        # ----------------------------
 
-        col1, col2, col3, col4 = st.columns(4)
+        with st.spinner("Building AI Knowledge Base..."):
+            build_vector_store(chunks)
+
+        st.success("✅ Knowledge Base Ready")
+
+        # ----------------------------
+        # Statistics
+        # ----------------------------
+
+        st.subheader("📊 PDF Statistics")
+
+        col1, col2, col3, col4, col5 = st.columns(5)
 
         with col1:
             st.metric("Pages", total_pages)
 
         with col2:
-            st.metric("Words", f"{len(text.split()):,}")
+            st.metric("Words", len(text.split()))
 
         with col3:
-            st.metric("Characters", f"{len(text):,}")
+            st.metric("Characters", len(text))
 
         with col4:
             st.metric("Chunks", len(chunks))
+
+        with col5:
+            st.metric("Knowledge Base", "Ready")
+
         st.divider()
+
+        # ----------------------------
+        # Preview
+        # ----------------------------
 
         st.subheader("📄 Text Preview")
 
-        preview = text[:2000]
-
         st.text_area(
             "First 2000 Characters",
-            preview,
-            height=350
+            text[:2000],
+            height=250
         )
+
         st.divider()
 
-        st.subheader("🧩 First AI Chunk")
+        # ----------------------------
+        # Chunk Preview
+        # ----------------------------
+
+        st.subheader("🧩 First Chunk")
 
         st.text_area(
             "Chunk 1",
             chunks[0],
-            height=250
-)
-        st.divider()
-
-        st.subheader("📋 Upload Summary")
-
-        st.write(f"**Company Report:** {file_name}")
-        st.write(f"**File Size:** {file_size_mb:.2f} MB")
-        st.write(f"**Pages:** {total_pages}")
-        st.write("**Status:** Ready for AI Analysis ✅")
+            height=200
+        )
 
         st.divider()
 
-        st.subheader("🚀 Next Step")
+        # ----------------------------
+        # Ask Questions
+        # ----------------------------
 
-        st.write("""
-In the next lesson, we will:
+        st.header("💬 Ask the AI")
 
-- Clean the extracted text
-- Split the report into chunks
-- Prepare the report for RAG
-- Generate embeddings
-- Build a searchable knowledge base
-""")
+        question = st.text_input(
+            "Ask anything about the company..."
+        )
+
+        if st.button("Generate Answer"):
+
+            if question.strip() == "":
+                st.warning("Please enter a question.")
+
+            else:
+
+                with st.spinner("Searching Annual Report..."):
+
+                    docs = search_chunks(question)
+
+                    context = "\n\n".join(docs)
+
+                    answer = ask_gemini(
+                        context,
+                        question
+                    )
+
+                st.subheader("Answer")
+
+                st.write(answer)
+        st.divider()
+
+        st.header("🏢 Company Analysis")
+
+        # ----------------------------
+        # Company Overview
+        # ----------------------------
+
+        if st.button("Generate Company Overview"):
+
+            prompt = """
+            Provide:
+            - Company Overview
+            - Industry
+            - Business Model
+            - Revenue Drivers
+            - Competitive Position
+            """
+
+            docs = search_chunks(prompt)
+            context = "\n\n".join(docs)
+
+            answer = ask_gemini(context, prompt)
+
+            st.subheader("Company Overview")
+            st.write(answer)
+
+        # ----------------------------
+        # SWOT Analysis
+        # ----------------------------
+
+        if st.button("Generate SWOT Analysis"):
+
+            prompt = """
+            Generate a SWOT Analysis.
+
+            Include:
+            - Strengths
+            - Weaknesses
+            - Opportunities
+            - Threats
+            """
+
+            docs = search_chunks(prompt)
+            context = "\n\n".join(docs)
+
+            answer = ask_gemini(context, prompt)
+
+            st.subheader("SWOT Analysis")
+            st.write(answer)
+
+        # ----------------------------
+        # Business Risks
+        # ----------------------------
+
+        if st.button("Identify Business Risks"):
+
+            prompt = """
+            Identify the company's biggest business risks.
+            """
+
+            docs = search_chunks(prompt)
+            context = "\n\n".join(docs)
+
+            answer = ask_gemini(context, prompt)
+
+            st.subheader("Business Risks")
+            st.write(answer)
+
+        # ----------------------------
+        # Growth Opportunities
+        # ----------------------------
+
+        if st.button("Growth Opportunities"):
+
+            prompt = """
+            Identify future growth opportunities.
+            """
+
+            docs = search_chunks(prompt)
+            context = "\n\n".join(docs)
+
+            answer = ask_gemini(context, prompt)
+
+            st.subheader("Growth Opportunities")
+            st.write(answer)
+
+        # ----------------------------
+        # Strategic Recommendations
+        # ----------------------------
+
+        if st.button("Strategic Recommendations"):
+
+            prompt = """
+            Act as a Bain & Company consultant.
+
+            Recommend five strategic initiatives.
+            """
+
+            docs = search_chunks(prompt)
+            context = "\n\n".join(docs)
+
+            answer = ask_gemini(context, prompt)
+
+            st.subheader("Strategic Recommendations")
+            st.write(answer)
 
     except Exception as e:
-        st.error("❌ Error reading the PDF.")
+
+        st.error("An error occurred while processing the PDF.")
         st.exception(e)
 
 else:
-    st.info("⬆️ Please upload a PDF annual report to begin.")
+
+    st.info("⬆️ Upload a PDF annual report to begin.")
