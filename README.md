@@ -1,74 +1,165 @@
-# 📊 AI Strategy Consultant
+# 🤖 AI Strategy Consultant
 
-An AI-powered strategy consulting application that analyzes public company annual reports using **Retrieval-Augmented Generation (RAG)** and **Google Gemini**. Users can upload a company's annual report and receive AI-generated strategic insights, including SWOT analysis, business risks, growth opportunities, and recommendations.
+An AI-powered business strategy assistant that analyzes corporate annual reports and generates consulting-style insights using **Generative AI, Retrieval-Augmented Generation (RAG), and Large Language Models (LLMs).**
+
+The application helps users quickly understand company performance, identify risks, discover growth opportunities, and generate strategic recommendations from lengthy business documents.
 
 ---
 
-## 🚀 Features
+## 🚀 Project Overview
 
-- 📄 Upload annual report PDFs
-- 📝 Automatic text extraction and preprocessing
-- ✂️ Semantic text chunking
-- 🧠 Vector embeddings using Sentence Transformers
-- 🗄️ ChromaDB vector database for semantic search
-- 💬 Ask natural language questions about the company
-- 🏢 Generate Company Overview
-- 📈 SWOT Analysis
-- ⚠️ Business Risk Assessment
-- 🌱 Growth Opportunity Identification
-- 🎯 Strategic Recommendations
+Business analysts and consultants spend significant time manually reviewing annual reports to extract meaningful insights.
+
+**AI Strategy Consultant** automates this process by allowing users to upload a company's annual report and receive structured strategic analysis within seconds.
+
+The application transforms unstructured business documents into actionable intelligence using AI-powered document understanding.
+
+---
+
+## 🎯 Key Features
+
+✅ Upload any company annual report PDF
+✅ Extract and process large business documents
+✅ AI-powered document understanding using RAG architecture
+✅ Generate consulting-style strategic insights
+✅ Automated SWOT Analysis
+✅ Identify key business risks
+✅ Discover growth opportunities
+✅ Generate executive summaries
+✅ Ask questions about the uploaded report using AI
+
+---
+
+## 🧠 How It Works
+
+```
+Annual Report PDF
+        |
+        ↓
+PDF Text Extraction
+        |
+        ↓
+Document Chunking
+        |
+        ↓
+Embedding Generation
+        |
+        ↓
+Vector Database Storage
+        |
+        ↓
+Relevant Context Retrieval
+        |
+        ↓
+LLM-Based Strategic Analysis
+        |
+        ↓
+Business Insights & Recommendations
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Python
-- Streamlit
-- Google Gemini API
-- ChromaDB
-- Sentence Transformers
-- PyMuPDF (fitz)
-- Retrieval-Augmented Generation (RAG)
+### Programming Language
+
+* Python
+
+### AI & Machine Learning
+
+* Google Gemini API
+* Retrieval-Augmented Generation (RAG)
+* Large Language Models (LLMs)
+* Text Embeddings
+
+### Data Processing
+
+* Pandas
+* PyPDF
+
+### Database
+
+* ChromaDB (Vector Database)
+
+### Application Development
+
+* Streamlit
 
 ---
 
-## 🏗️ Project Workflow
+## 📌 Application Workflow
 
-```text
-Upload Annual Report (PDF)
-          │
-          ▼
-Extract Text (PyMuPDF)
-          │
-          ▼
-Clean & Chunk Text
-          │
-          ▼
-Generate Embeddings
-          │
-          ▼
-Store in ChromaDB
-          │
-          ▼
-Semantic Search
-          │
-          ▼
-Gemini LLM
-          │
-          ▼
-Strategic Business Insights
-```
+1. User uploads a company annual report PDF.
+2. The document is extracted and divided into meaningful text chunks.
+3. Text embeddings are generated and stored in a vector database.
+4. User queries retrieve relevant sections from the document.
+5. Gemini AI generates structured strategic insights based on retrieved information.
 
 ---
 
-## 📸 Key Capabilities
+## 📊 Generated Insights
 
-- Company Overview
-- Interactive Q&A on Annual Reports
-- SWOT Analysis
-- Business Risk Analysis
-- Growth Opportunity Analysis
-- Strategic Recommendations
+The application provides:
+
+### 🏢 Company Overview
+
+Summarizes the company's business model, operations, and key highlights.
+
+### 🔍 SWOT Analysis
+
+Identifies:
+
+* Strengths
+* Weaknesses
+* Opportunities
+* Threats
+
+### ⚠️ Risk Identification
+
+Highlights major operational, financial, and strategic risks.
+
+### 📈 Growth Opportunities
+
+Suggests potential areas for expansion and improvement.
+
+### 💡 Strategic Recommendations
+
+Provides consultant-style recommendations based on company data.
+
+### 📄 Executive Summary
+
+Creates a concise management-level overview.
+
+---
+
+## 📸 Screenshots
+
+### Home Page
+
+![Home Page](images/home.png)
+
+### Document Upload
+
+![Upload](images/upload.png)
+
+### AI Strategic Analysis
+
+![Analysis](images/analysis.png)
+
+### AI Question Answering
+
+![Q\&A](images/qa.png)
+
+---
+
+## 🔮 Future Enhancements
+
+* Financial KPI extraction from annual reports
+* Automated financial ratio analysis
+* Competitor comparison framework
+* Multi-company report comparison
+* Automated PowerPoint strategy presentations
+* Integration with real-time market data
 
 ---
 
@@ -80,24 +171,48 @@ AI-Strategy-Consultant/
 ├── app.py
 ├── requirements.txt
 ├── README.md
+│
+├── utils/
+│   ├── pdf_reader.py
+│   └── other utilities
+│
 ├── uploads/
 │
-└── utils/
-    ├── pdf_reader.py
-    ├── text_processing.py
-    ├── embeddings.py
-    ├── vector_store.py
-    └── gemini.py
+└── images/
+    ├── home.png
+    ├── upload.png
+    ├── analysis.png
+    └── qa.png
 ```
 
 ---
 
-## ⚙️ Installation
+## ⚙️ Installation & Setup
 
 Clone the repository:
 
 ```bash
 git clone https://github.com/aditree1111/AI-Strategy-Consultant.git
+```
+
+Navigate to the project folder:
+
+```bash
+cd AI-Strategy-Consultant
+```
+
+Create a virtual environment:
+
+```bash
+python -m venv venv
+```
+
+Activate the environment:
+
+Windows:
+
+```bash
+.\venv\Scripts\activate
 ```
 
 Install dependencies:
@@ -106,10 +221,10 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Create a `.env` file:
+Add your API key in `.env`:
 
-```text
-GEMINI_API_KEY=YOUR_API_KEY
+```
+GEMINI_API_KEY=your_api_key_here
 ```
 
 Run the application:
@@ -120,33 +235,23 @@ streamlit run app.py
 
 ---
 
-## 💡 Example Questions
+## 🎓 Skills Demonstrated
 
-- What does this company do?
-- What are the company's biggest business risks?
-- Summarize the business model.
-- What are the major growth opportunities?
-- Generate a SWOT analysis.
-- Recommend strategic initiatives.
-
----
-
-## 🔮 Future Improvements
-
-- Export AI-generated reports as PDF
-- Interactive financial dashboards
-- Multi-document analysis
-- Financial ratio visualization
-- Cloud deployment
-- Conversation history
-- Support for additional LLM providers
+* Generative AI Application Development
+* Retrieval-Augmented Generation (RAG)
+* Natural Language Processing
+* Document Intelligence
+* Vector Databases
+* Data Processing with Python
+* Business Strategy Analysis
+* AI Product Development
 
 ---
 
-## 👤 Author
+## 👩‍💻 Author
 
 **Aditree Bajpai**
 
-GitHub: https://github.com/aditree1111
+B.Sc. Mathematics (Hons.)
+University of Delhi
 
----
